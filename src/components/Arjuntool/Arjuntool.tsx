@@ -1,27 +1,26 @@
-import { Button, LoadingOverlay, Stack, TextInput, Switch } from "@mantine/core";
+import { Button, Stack, TextInput, Switch } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useCallback, useState, useEffect } from "react";
 import { CommandHelper } from "../../utils/CommandHelper";
 import ConsoleWrapper from "../ConsoleWrapper/ConsoleWrapper";
-import { UserGuide } from "../UserGuide/UserGuide";
 import { LoadingOverlayAndCancelButton } from "../OverlayAndCancelButton/OverlayAndCancelButton";
 import { SaveOutputToTextFile_v2 } from "../SaveOutputToFile/SaveOutputToTextFile";
 import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
 import InstallationModal from "../InstallationModal/InstallationModal";
+import { RenderComponent } from "../UserGuide/UserGuide";
 
-// Component constants.
 const title = "Arjun";
-
-// Contains the description of the component.
-const description_userguide =
-    "Arjun is a command-line tool specifically designed to look for hidden HTTP parameters. " +
-    "Arjun will try to discover parameters and give you a new set of endpoints to test on. " +
-    "It is a multi-threaded application and can handle rate limits. It supports GET,POST,XML and JSON methods.\n\n" +
-    "How to use Arjun:\n\n" +
-    "Step 1: Enter a valid URL. E.g. https://www.deakin.edu.au\n" +
-    "Step 2: Enter an optional JSON output filename. E.g. arjunoutput.\n" +
-    "Step 3: Click the scan option to commence scanning.\n" +
-    "Step 4: View the output block below to see the results.";
+const dependencies = ["arjun"]; // Contains the dependencies required for the component
+const description =
+    "Arjun is  command-line tool for discovering hidden HTTP parameters. It supports multiple methods and handles rate limits efficiently.";
+const steps = [
+    "Step 1: Enter a valid URL. E.g. https://www.deakin.edu.au.",
+    "Step 2: Enter an optional JSON output filename. E.g. arjunoutput.",
+    "Step 3: Click the scan button to commence scanning.",
+    "Step 4: View the output block below to see the results.",
+];
+const sourceLink = "https://github.com/s0md3v/Arjun"; // Link to the source code repository
+const tutorial = "https://www.geeksforgeeks.org/arjun-hidden-http-parameter-discovery-suite-in-kali-linux/"; // Link to the tutorial
 
 /**
  * Represents the form values for the Arjun component.
@@ -33,22 +32,18 @@ interface FormValues {
 }
 
 function Arjuntool() {
-    // Component State Variables.
-    const [loading, setLoading] = useState(false); // State variable to indicate loading state.
-    const [output, setOutput] = useState(""); // State variable to store the output of the command execution.
-    const [pid, setPid] = useState(""); // State variable to store the process ID of the command execution.
-    const [allowSave, setAllowSave] = useState(false); // State variable to allow saving the output to a file.
-    const [hasSaved, setHasSaved] = useState(false); // State variable to indicate if the output has been saved.
-    const [isCommandAvailable, setIsCommandAvailable] = useState(false); // State variable to check if the command is available.
-    const [opened, setOpened] = useState(!isCommandAvailable); // State variable that indicates if the modal is opened.
+    // Component State Variables
+    const [loading, setLoading] = useState(false); // State variable to indicate loading state
+    const [output, setOutput] = useState(""); // State variable to store the output of the command execution
+    const [pid, setPid] = useState(""); // State variable to store the process ID of the command execution
+    const [allowSave, setAllowSave] = useState(false); // State variable to allow saving the output to a file
+    const [hasSaved, setHasSaved] = useState(false); // State variable to indicate if the output has been saved
+    const [isCommandAvailable, setIsCommandAvailable] = useState(false); // State variable to check if the command is available
+    const [opened, setOpened] = useState(!isCommandAvailable); // State variable that indicates if the modal is opened
     const [loadingModal, setLoadingModal] = useState(true); // State variable to indicate loading state of the modal
-
-    // Component Constants.
-    const dependencies = ["arjun"]; // Contains the dependencies required for the component.
 
     // Check if the command is available and set the state variables accordingly.
     useEffect(() => {
-        // Check if the command is available and set the state variables accordingly.
         checkAllCommandsAvailability(dependencies)
             .then((isAvailable) => {
                 setIsCommandAvailable(isAvailable); // Set the command availability state
@@ -121,6 +116,10 @@ function Arjuntool() {
         setAllowSave(false);
     };
 
+    /**
+     * onSubmit: Handles form submission, executes the Arjun command, and updates the output state.
+     * @param {FormValues} values - The form values.
+     */
     const onSubmit = async (values: FormValues) => {
         // Disallow saving until the tool's execution is complete
         setAllowSave(false);
@@ -128,7 +127,7 @@ function Arjuntool() {
         // Activate loading state to indicate ongoing process
         setLoading(true);
 
-        // Construct arguments for the aircrack-ng command based on form input
+        // Construct arguments for the arjun command based on form input
         const args = ["-u", values.url];
 
         // Conditional. If the user has specified stability, add the --stable option to the command.
@@ -173,14 +172,23 @@ function Arjuntool() {
                 <InstallationModal
                     isOpen={opened}
                     setOpened={setOpened}
-                    feature_description={description_userguide}
+                    feature_description={description}
                     dependencies={dependencies}
-                ></InstallationModal>
+                />
             )}
             <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
                 {LoadingOverlayAndCancelButton(loading, pid)}
                 <Stack>
-                    {UserGuide(title, description_userguide)}
+                    <RenderComponent
+                        title={title}
+                        description={description}
+                        steps={steps.join("\n")}
+                        tutorial={tutorial}
+                        sourceLink={sourceLink}
+                    >
+                        {/* Children content or an empty fragment can go here */}
+                        <>{/* Additional configuration or instructions can be placed here */}</>
+                    </RenderComponent>
                     <TextInput label={"URL"} required {...form.getInputProps("url")} />
                     <Switch size="md" label="Stability mode" {...form.getInputProps("stability" as keyof FormValues)} />
                     <Button type={"submit"}>Scan</Button>

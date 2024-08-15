@@ -107,3 +107,4 @@ export function RenderComponent(component: ComponentProps) {
         </>
     );
 }
+export default UserGuide;
