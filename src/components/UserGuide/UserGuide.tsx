@@ -8,6 +8,7 @@ interface ComponentProps {
     description: string; // Description of the component. This should not include steps.
     steps: string; // Steps to use the component. This should be strictly limited to the steps.
     tutorial: string; // Tutorial for the component.
+    videoLink?: string; // Optional video link for the tutorial
     sourceLink: string; // Source link for the component.
     children: React.ReactNode; // Children of the component. Used to render the configuration.
 }
@@ -79,7 +80,7 @@ export function RenderComponent(component: ComponentProps) {
                     <Tabs.Tab value="configuration" icon={<IconSettings width={16} height={16} />}>
                         Configuration
                     </Tabs.Tab>
-                    <Tabs.Tab value="tutorial" disabled icon={<IconAbacus width={16} height={16} />}>
+                    <Tabs.Tab value="tutorial" icon={<IconAbacus width={16} height={16} />}>
                         Tutorial
                     </Tabs.Tab>
                 </Tabs.List>
@@ -98,8 +99,16 @@ export function RenderComponent(component: ComponentProps) {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="tutorial">
+                    <Title>Tutorial for {component.title}</Title>
                     <Text className={styles.text} size="md">
                         <pre style={{ whiteSpace: "pre-wrap" }}>{component.tutorial}</pre>
+                        {component.videoLink && (
+                            <div>
+                                <a href={component.videoLink} target="_blank" rel="noopener noreferrer">
+                                    Watch Tutorial Video
+                                </a>
+                            </div>
+                        )}
                         <pre style={{ whiteSpace: "pre-wrap" }}>{component.sourceLink}</pre>
                     </Text>
                 </Tabs.Panel>
