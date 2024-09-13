@@ -1,4 +1,4 @@
-import { Button, Stack, TextInput } from "@mantine/core";
+import { Button, Stack, TextInput, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useCallback, useState, useEffect } from "react";
 import { CommandHelper } from "../../utils/CommandHelper";
@@ -30,6 +30,7 @@ const RainbowCrack = () => {
     const [loadingModal, setLoadingModal] = useState(true); // State variable to indicate loading state of the modal.
     const [allowSave, setAllowSave] = useState(false); // State variable to enable/disable saving
     const [hasSaved, setHasSaved] = useState(false); // State variable to track whether output has been saved
+    const [hashError, setHashError] = useState("");
 
     // Component Constants
     const title = "RainbowCrack"; // Title of the component
@@ -81,8 +82,24 @@ const RainbowCrack = () => {
      * handleProcessData:Callback to handle and append new data from the child process to the output.
      * @param {string} data - The data received from the child process.
      */
+    const validateHash = (data: string) => {
+        //Basic hash formatvalidation: Checks for hexadecimal characters and typical lengths(32,42,64,etc.)
+        const hashRegex = /^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/;
+
+        if (!hashRegex.test(data)) {
+            setHashError("Invalid hash format. Please ensure it is a valid 32,40, or 64 character hexadecimal hash. ");
+        } else {
+            setHashError("");
+        }
+    };
+    const handleHashChange = (event: any) => {
+        const { value } = event.currentTarget;
+        form.setFieldValue("hashValue", value);
+        validateHash(value); // Call the validation function on each input change
+    };
+
     const handleProcessData = useCallback((data: string) => {
-        setOutput((prevOutput) => prevOutput + "\n" + data); // Append new data to the previous output.
+        setOutput((prevOutput: string): string => prevOutput + "\n" + data); // Append new data to the previous output.
     }, []);
 
     /**
@@ -111,6 +128,7 @@ const RainbowCrack = () => {
      * @param {FormValuesType} values - The form values.
      */
     const onSubmit = async (values: FormValuesType) => {
+        if (hashError) return; //Prevent form submission if there's a validation error
         setLoading(true);
 
         // Construct arguments for rainbowcrack command based on form input
@@ -159,9 +177,18 @@ const RainbowCrack = () => {
             <form onSubmit={form.onSubmit(onSubmit)}>
                 <Stack>
                     {LoadingOverlayAndCancelButton(loading, pid)}
-                    <TextInput label="Hash Value" required {...form.getInputProps("hashValue")} />
+                    <TextInput
+                        label="Hash Value"
+                        required
+                        {...form.getInputProps("hashValue")}
+                        onChange={handleHashChange} //Update the onChange handler
+                        error={hashError && <Text color="red">{hashError}</Text>} // Display the error message
+                    />
                     {SaveOutputToTextFile_v2(output, allowSave, hasSaved, handleSaveComplete)}
-                    <Button type="submit">Crack</Button>
+                    <Button type="submit" disabled={!!hashError}>
+                        Crack
+                    </Button>
+                    {/*Disable submit if there's an error*/}
                     <ConsoleWrapper output={output} clearOutputCallback={clearOutput} />
                 </Stack>
             </form>
