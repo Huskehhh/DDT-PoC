@@ -15,10 +15,11 @@ interface FormValuesType {
     sniffDuration: string;
     trafficFilter: string;
     packetCount: string;
+    analysisType?: string;
 }
 
 //TShark Options
-const tsharkOptions = ["Sniffer", "Reader"];
+const tsharkOptions = ["Sniffer", "Reader", "Analyzer"];
 
 const TShark = () => {
     const [output, setOutput] = useState("");
@@ -31,17 +32,21 @@ const TShark = () => {
     // The following component constants are used for rendering the TShark user guide.
     const title = "TShark";
     const description =
-        "TShark is a tool used to capture network traffic and write it to a capture file. The captured traffic can be viewed directly by opening the file, otherwise the Reader option can be used to output the file contents to the output box."; // Description of the component.
+        "TShark is a tool used to capture network traffic and write it to a capture file. The captured traffic can be viewed directly by opening the file, otherwise the Reader option can be used to output the file contents to the output box. The Analyzer option provides traffic analysis options extracting protocol statistics, TCP conversations, and HTTP request data."; // Description of the component.
     const steps =
-        "Step 1: Select Sniffer mode.\n" +
-        "Step 2: Specify the interface to capture traffic from such as eth0.\n" +
-        "Step 3: Specify the output file path (should end with a pcap file).\n" +
-        "Step 4: Input the amount of seconds that TShark should capture traffic for (optional).\n" +
-        "Step 5: Input a packet count to determine the total number of packets to scan before stopping (optional).\n" +
-        "Step 6: Input a traffic filter to filter for specific traffic such as TCP (optional).\n" +
-        "Step 7: Click start TShark to sniff traffic.\n" +
-        "Step 8: Switch to Reader mode.\n" +
-        "Step 9: Provide the file path for the capture file and click start TShark.";
+        "Step 01: Select Sniffer mode.\n" +
+        "Step 02: Specify the interface to capture traffic from such as eth0.\n" +
+        "Step 03: Specify the output file path (should end with a pcap file).\n" +
+        "Step 04: Input the amount of seconds that TShark should capture traffic for (optional).\n" +
+        "Step 05: Input a packet count to determine the total number of packets to scan before stopping (optional).\n" +
+        "Step 06: Input a traffic filter to filter for specific traffic such as TCP (optional).\n" +
+        "Step 07: Click start TShark to sniff traffic.\n" +
+        "Step 08: Switch to Reader mode.\n" +
+        "Step 09: Provide the file path for the capture file and click start TShark.\n" +
+        "Step 10: Switch to Analyzer mode.\n" +
+        "Step 11: Provide the file path for the capture file.\n" +
+        "Step 12: Seletc the Analyzer type and click start TShark";
+
     const sourceLink = ""; // Link to the source code (or Kali Tools).
     const tutorial = ""; // Link to the official documentation/tutorial.
 
@@ -52,7 +57,12 @@ const TShark = () => {
             sniffDuration: "",
             trafficFilter: "",
             packetCount: "",
+            analysisType: "",
         },
+        /* validate: {
+            filePath: (value) => (selectedTSharkOption === "Analyzer" && !value ? 'PCAP file path is required' : null),
+            analysisType: (value) => (selectedTSharkOption === "Analyzer" && !value ? 'Analysis type is required' : null),
+        },*/
     });
 
     /**
@@ -103,6 +113,7 @@ const TShark = () => {
      * @param {FormValuesType} values - The form values, containing the <list the form values here, e.g.  interface, packet count, etc>.
      */
     const onSubmit = async (values: FormValuesType) => {
+        console.log("Form submitted with values: ", values);
         // Set loading state to true and disallow output saving
         setLoading(true);
         setAllowSave(false);
@@ -160,7 +171,52 @@ const TShark = () => {
                     setLoading(false);
                     setAllowSave(true);
                 }
+                break;
 
+            case "Analyzer": // Analyzes the pcap file for the selected traffic analysis
+                //let analysisCommand = `tshark -r ${values.filePath} -q -z io,stat,1`;
+                let analysisCommand;
+                console.log("Analyzer ", analysisCommand);
+
+                switch (values.analysisType) {
+                    case "Protocol Statistics":
+                        analysisCommand = `tshark -r ${values.filePath} -q -z io,stat,1`;
+                        break;
+                    case "TCP Conversations":
+                        analysisCommand = `tshark -r ${values.filePath} -q -z conv,tcp`;
+                        break;
+                    case "HTTP Requests":
+                        analysisCommand = `tshark -r ${values.filePath} -Y "http.request" -T fields -e http.host -e http.request.uri`;
+                        break;
+                    default:
+                        setOutput("Invalid analysis type selected.");
+                        setLoading(false);
+                        return;
+                }
+
+                CommandHelper.runCommandGetPidAndOutput(
+                    "bash", // The command is executed through bash to facilitate correct command syntax (TShark does not require bash to run)
+                    ["-c", analysisCommand],
+                    handleProcessData,
+                    handleProcessTermination
+                )
+                    .then(({ output, pid }) => {
+                        // Update the UI with the results from the executed command
+                        setOutput(output);
+                        console.log(pid);
+                        setPid(pid);
+                    })
+                    .catch((error) => {
+                        // Display any errors encountered during command execution
+                        setOutput(error.message);
+                        // Deactivate loading state
+                        setLoading(false);
+                    })
+                    .finally(() => {
+                        // Set loading state to false and allow output saving
+                        setLoading(false);
+                        setAllowSave(true);
+                    });
                 break;
         }
     };
@@ -183,14 +239,18 @@ const TShark = () => {
     };
 
     return (
-        <RenderComponent // Using RenderComponent form UserGuide.
+        <RenderComponent
             title={title}
             description={description}
             steps={steps}
             tutorial={tutorial}
             sourceLink={sourceLink}
         >
-            <form onSubmit={form.onSubmit((values) => onSubmit({ ...values, tsharkOptions: selectedTSharkOption }))}>
+            <form
+                onSubmit={form.onSubmit((values) =>
+                    onSubmit({ ...values, tsharkOptions: selectedTSharkOption, analysisType: form.values.analysisType })
+                )}
+            >
                 <Stack>
                     {LoadingOverlayAndCancelButton(loading, pid)}
                     <NativeSelect
@@ -234,6 +294,14 @@ const TShark = () => {
                         </>
                     )}
                     {selectedTSharkOption === "Reader" && (
+                        <TextInput
+                            label={"File/File Path"}
+                            placeholder="e.g. /path/to/destination/capture.pcap"
+                            required
+                            {...form.getInputProps("filePath")}
+                        />
+                    )}
+                    {selectedTSharkOption === "Analyzer" && (
                         <>
                             <TextInput
                                 label={"File/File Path"}
@@ -241,8 +309,16 @@ const TShark = () => {
                                 required
                                 {...form.getInputProps("filePath")}
                             />
+                            <NativeSelect
+                                label="Analysis Type"
+                                placeholder="Select analysis"
+                                required
+                                data={["Protocol Statistics", "TCP Conversations", "HTTP Requests"]}
+                                {...form.getInputProps("analysisType")}
+                            />
                         </>
                     )}
+
                     <Button type={"submit"}>Start TShark</Button>
                     {SaveOutputToTextFile_v2(output, allowSave, hasSaved, handleSaveComplete)}
                     <ConsoleWrapper output={output} clearOutputCallback={clearOutput} />
