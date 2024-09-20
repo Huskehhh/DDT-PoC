@@ -9,6 +9,7 @@ const ToolsPage = () => {
         "Attack Tools",
         "File Analysis and Recovery",
         "Information Gathering and Analysis",
+        "IOT",
         "Miscellaneous",
         "Network Scanning and Enumeration",
         "Password Cracking and Authentication Testing",

@@ -5,7 +5,6 @@ import ToolsPage from "../pages/Tools";
 import { CVE202141773 } from "./CVE-2021-41773/CVE-2021-41773";
 import CVE202144228 from "./CVE-2021-44228/CVE-2021-44228";
 import CVE202236804 from "./CVE-2022-36804/CVE-2022-36804";
-import CVE202227925 from "./CVE-2022-27925/CVE-2022-27925";
 import DirbTool from "./DirbTool/DirbTool";
 import FindOffset from "./FindOffset/FindOffset";
 import Hashcat from "./Hashcat/Hashcat";
@@ -66,7 +65,6 @@ import Topology from "./WalkthroughPages/Topology";
 import Persistence from "./WalkthroughPages/Persistence";
 import RTsort from "./RTsort/RTsort";
 import Rainbowcrack from "./Rainbowcrack/Rainbowcrack";
-import Rtgen from "./rtgen/rtgen";
 import NSLookup from "./NSLookupTool/NSLookupTool";
 import ArpanameTool from "./Arpaname/arpaname";
 import Nikto from "./Nikto/Nikto";
@@ -79,14 +77,11 @@ import Sublist3r from "./Sublist3r/Sublist3r";
 import Arpscan from "./ArpScan/ArpScan";
 import Whois from "./Whois/Whois";
 import Masscan from "./Masscan/Masscan";
-import TestSSL from "./Testssl/Testssl";
 import Hping3 from "./Hping3/Hping3";
 import SQLmap from "./SQLmap/SQLmap";
 import SlowHttpTest from "./slowhttptest/slowhttptest";
-import Tiger from "./tiger/tiger";
 import Unicornscan from "./Unicornscan/Unicornscan";
-import Arping from "./Arping/Arping";
-import Sqlninja from "./Sqlninja/sqlninja";
+import FirmwareAnalysisTool from "./FirmwareAnalysisTool/FirmwareAnalysisTool";
 
 export interface RouteProperties {
     name: string;
@@ -182,14 +177,6 @@ export const ROUTES: RouteProperties[] = [
         category: "",
     },
     {
-        name: "CVE-2022-27925",
-        path: "/attack-vectors/cve-2022-27925",
-        element: <CVE202227925 />,
-        description:
-            "Zimbra Collaboration (aka ZCS) 8.8.15 and 9.0 has mboximport functionality that receives a ZIP archive and extracts files from it.",
-        category: "",
-    },
-    {
         name: "Busqueda",
         path: "/walkthroughs/Busqueda",
         element: <Busqueda />,
@@ -254,7 +241,7 @@ export const ROUTES: RouteProperties[] = [
         path: "/walkthroughs/Pilgrimage",
         element: <Pilgrimage />,
         description:
-            "A walkthrough on the Pilgrimage Hack The Box challenge focused on exploiting a web application vulnerabilities to gain access to the system",
+            "A walkthrough on the Pilgrimage Hack The Box challenge focused on exploiting a web application vulnerability to gain access to the system",
         category: "Web Application Testing",
     },
     {
@@ -295,7 +282,7 @@ export const ROUTES: RouteProperties[] = [
         path: "/tools/AircrackNG",
         element: <AircrackNG />,
         description:
-            "A wireless network auditing and cracking tool that can capture and analyze packets from Wi-Fi networks, crack WEP and WPA-PSK passwords, and identify vulnerability in wireless networks.",
+            "A wireless network auditing and cracking tool that can capture and analyze packets from Wi-Fi networks, crack WEP and WPA-PSK passwords, and identify vulnerabilities in wireless networks.",
         category: "Password Cracking and Authentication Testing",
     },
     {
@@ -335,13 +322,6 @@ export const ROUTES: RouteProperties[] = [
         element: <ARPFingerprint />,
         description:
             "A tool to analyse ARP (Address Resolution Protocol) traffic to identify the types of operating systems and network devices on a network.",
-        category: "Network Scanning and Enumeration",
-    },
-    {
-        name: "Arping",
-        path: "/tools/Arping",
-        element: <Arping />,
-        description: "Arping is a tool to send ARP requests to a specified IP address to discover the MAC address.",
         category: "Network Scanning and Enumeration",
     },
     {
@@ -466,6 +446,14 @@ export const ROUTES: RouteProperties[] = [
         description:
             "A web fuzzer used for discovering hidden files, directories and endpoints on web servers by brute-forcing URLs.",
         category: "Web Application Testing",
+    },
+    {
+        name: "FirmwareAnalysisTool",
+        path: "/tools/FirmwareAnalysisTool",
+        element: <FirmwareAnalysisTool />,
+        description:
+            "Firmware Analysis Toolkit (FAT henceforth) is based on Firmadyne with some changes. Firmadyne uses a PostgreSQL database to store information about the emulated images.",
+        category: "IOT",
     },
     {
         name: "Foremost",
@@ -614,14 +602,7 @@ export const ROUTES: RouteProperties[] = [
         path: "/tools/Rainbowcrack",
         element: <Rainbowcrack />,
         description: "A computer program which generates rainbow tables to be used in password cracking.",
-        category: "Password Cracking and Authentication Testing",
-    },
-    {
-        name: "Rtgen",
-        path: "/tools/rtgen",
-        element: <Rtgen />,
-        description: "A tool for generating random network traffic to simulate various network conditions and loads.",
-        category: "Network Traffic Generation",
+        category: "Password cracking and Authentication testing",
     },
     {
         name: "SearchSploit",
@@ -629,7 +610,7 @@ export const ROUTES: RouteProperties[] = [
         element: <SearchSploit />,
         description:
             "A utility that allows users to search through a vast database of exploits, shellcodes, and security-related papers.",
-        category: "Vulnerability Assessment and Exploitation",
+        category: "Vulnerabilityy Assessment and Exploitation",
     },
     {
         name: "Sherlock",
@@ -645,13 +626,6 @@ export const ROUTES: RouteProperties[] = [
         description:
             "Shodan API allows for network scanning and querying of Shodan’s database to gather information about connected devices and their vulnerabilities.",
         category: "Vulnerability Assessment and Exploitation",
-    },
-    {
-        name: "SlowHttpTest",
-        path: "/tools/slowhttptest",
-        element: <SlowHttpTest />,
-        description: "A tool for simulating slow HTTP attacks to test web server resilience.",
-        category: "Web Application Testing",
     },
     {
         name: "SMB Enumeration",
@@ -685,14 +659,6 @@ export const ROUTES: RouteProperties[] = [
         category: "Web Application Testing",
     },
     {
-        name: "Sqlninja",
-        path: "/tools/sqlninja",
-        element: <Sqlninja />,
-        description:
-            "A tool used to exploit SQL injection vulnerabilities on web applications that use Microsoft SQL Server as back end.",
-        category: "Vulnerability Assessment and Exploitation",
-    },
-    {
         name: "Sublist3r",
         path: "/tools/Sublist3r",
         element: <Sublist3r />,
@@ -709,21 +675,6 @@ export const ROUTES: RouteProperties[] = [
         category: "Information Gathering and Analysis",
     },
     {
-        name: "Testssl.sh",
-        path: "/tools/Testssl",
-        element: <TestSSL />,
-        description:
-            "testssl.sh is a versatile command line tool designed to check a server's SSL/TLS configuration and identify potential vulnerabilities.",
-        category: "Network Scanning and Enumeration",
-    },
-    {
-        name: "Tiger",
-        path: "/tools/tiger",
-        element: <Tiger />,
-        description: "Audit and intrusion detection tool used to protect UNIX based systems.",
-        category: "Vulnerability Assessment and Exploitation",
-    },
-    {
         name: "Traceroute",
         path: "/tools/Traceroute",
         element: <Traceroute />,
@@ -736,14 +687,6 @@ export const ROUTES: RouteProperties[] = [
         path: "/tools/TShark",
         element: <TShark />,
         description: "A command-line network analyzer that can capture, analyze, and troubleshoot network traffic.",
-        category: "Network Scanning and Enumeration",
-    },
-    {
-        name: "Unicornscan",
-        path: "/tools/Unicornscan",
-        element: <Unicornscan />,
-        description:
-            "Unicornscan is essential for scanning servers and hosts to see what available ports are being utilised for network communications.",
         category: "Network Scanning and Enumeration",
     },
     {
