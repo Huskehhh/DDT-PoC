@@ -34,7 +34,6 @@ import NetcatTool from "./Netcat/Netcat";
 import Sherlock from "./Sherlock/Sherlock";
 import BEDTool from "./BedTool/BEDTool";
 import Dnsrecon from "./Dnsrecon/Dnsrecon";
-import Crackmapexec from "./Crackmapexec/Crackmapexec";
 import FfufTool from "./Ffuf/FfufTool";
 import Redeemer from "./WalkthroughPages/Redeemer";
 import Fawn from "./WalkthroughPages/Fawn";
@@ -381,14 +380,6 @@ export const ROUTES: RouteProperties[] = [
         element: <Cewl />,
         description: "A tool that generates custom word lists by crawling and analyzing web pages for useful words.",
         category: "Password Cracking and Authentication Testing",
-    },
-    {
-        name: "Crackmapexec",
-        path: "/tools/Crackmapexec",
-        element: <Crackmapexec />,
-        description:
-            "A post-exploitation tool used for automating the assessment and exploitation of large Active Directory networks.",
-        category: "Vulnerability Assessment and Exploitation",
     },
     {
         name: "Crunch",
