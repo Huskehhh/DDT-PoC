@@ -24,6 +24,8 @@ interface FormValuesType {
     aggressive: boolean;
     verbose: boolean;
     noPortScan: boolean;
+    ipv6: boolean;
+    exclusion: string;
 }
 
 /**
@@ -71,6 +73,8 @@ function Nmap() {
             aggressive: false,
             verbose: false,
             noPortScan: false,
+            ipv6: false,
+            exclusion: "",
         },
     });
 
@@ -113,7 +117,6 @@ function Nmap() {
             } else {
                 handleProcessData(`\nProcess terminated with exit code: ${code} and signal code: ${signal}`);
             }
-
             setLoading(false);
             setAllowSave(true);
             setHasSaved(false);
@@ -167,6 +170,68 @@ function Nmap() {
             setLoading(false);
             setAllowSave(true);
         }
+
+        // Check if verbose mode is selected
+        if (values.verbose) {
+        args.push("-v");
+}
+
+// Handle scan options
+    switch (values.scanType) {
+    case "Default":
+        // No additional arguments for default scan
+        break;
+    case "Operating System":
+        args.push("-O");
+        break;
+    case "Firewall Status":
+        args.push("-sA");
+        break;
+    case "Services":
+        args.push("-sV");
+        break;
+    case "Stealth":
+        args.push("-sN");
+        break;
+    case "Device Discovery":
+        args.push("-sn");
+        break;
+    case "Aggressive":
+        args.push("-A");
+        break;
+    case "Top ports":
+        args.push("--top-ports", `${values.noPortScan}`);
+        break;
+    default:
+        console.warn("Invalid scan option selected.");
+        break;
+    }
+
+// Add IPv6 support if enabled
+        if (values.ipv6) {
+        args.push("-6");
+    }
+
+// Add the target IP addresses
+        args.push(...values.target);
+
+// Handle exclusions
+        if (values.exclusion) {
+        args.push("--exclude", ...values.exclusion.split(" "));
+}
+
+// Execute the nmap command
+CommandHelper.runCommandGetPidAndOutput("nmap", args, handleProcessData, handleProcessTermination)
+    .then(({ pid, output }) => {
+        setPid(pid);
+        setOutput(output);
+    })
+    .catch((error) => {
+        setLoading(false);
+        setOutput(`Error: ${error.message}`);
+    });
+
+
     };
 
     /**
@@ -174,7 +239,7 @@ function Nmap() {
      * It resets the state variable holding the output, thereby clearing the display.
      */
     const clearOutput = useCallback(() => {
-        setOutput("");
+        setOutput(" ");
         setHasSaved(false);
         setAllowSave(false);
     }, []);
