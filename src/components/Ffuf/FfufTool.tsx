@@ -51,16 +51,15 @@ const FfufTool = () => {
         "and map out the target. ffuf can even be used to brute force credentials used in web authentication.\n\n" +
         "For further information on ffuf: https://github.com/ffuf/ffufS\n\n" +
         "Wordlist directory: /usr/share/ddt/ffuf_wordlists/\n\n" +
-        "Basic ffuf brute force discovery:\n\n" +
-        "Step 1: Enter a URL to be fuzzed\n" +
+        "Basic ffuf brute force discovery:\n\n";
+    const steps = ["Step 1: Enter a URL to be fuzzed\n" +
         "       E.g. http://www.example.com/FUZZ\n\n" +
         "Step 2: Optionally enter a wordlist other than the default\n" +
         "       E.g. wordlist.txt\n\n" +
         "Step 3: Optionally enter extensions to be added to words. Comma separated." +
         "\n         E.g. .html,.php,.txt" +
         "\n\nStep 4: Click Scan to commence the ffuf operation.\n" +
-        "Step 5: View the Output block below to view the results of the Scan.";
-    const steps = ""; // Left blank due to steps being included in description
+        "Step 5: View the Output block below to view the results of the Scan."];
     const sourceLink = "https://www.kali.org/tools/ffuf/"; // Link to the source code (or Kali Tools).
     const tutorial = "https://docs.google.com/document/d/1ntOm0yiqLnhTfqqcmbJC3bpjzJ5Ymqe3Oi67qULHWTE/edit?usp=sharing"; // Link to the official documentation/tutorial.
     const dependencies = ["ffuf"]; // Contains the dependencies required by the component.
