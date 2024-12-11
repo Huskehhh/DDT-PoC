@@ -27,16 +27,24 @@
                         "cmd": "airbase-ng",
                         "args": true
                     },
+{
+    "name": "nmap",
+    "cmd": "/usr/bin/nmap",
+    "args": true
+},
                     {
                         "name": "aircrack-ng",
                         "cmd": "aircrack-ng",
                         "args": true
                     },
+                    
+                 
                     {
                         "name": "amap",
                         "cmd": "amap",
                         "args": true
                     },
+                       
                     {
                         "name": "amass",
                         "cmd": "amass",
@@ -418,6 +426,7 @@
                 "all": true
             }
         },
+
         "bundle": {
             "active": true,
             "category": "DeveloperTool",
