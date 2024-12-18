@@ -40,8 +40,8 @@ const ZeroLogon = () => {
         "access to create a Netlogon session that can be exploited to grant domain administrative privileges. The vulnerability " +
         "here lays within an implementation flaw for AES-CFB8 where a cryptographic transformation takes place with use of a " +
         "session key.\n\nFurther information can be found at: https://www.crowdstrike.com/blog/cve-2020-1472-zerologon-" +
-        "security-advisory/\n\n" +
-        "Using ZeroLogon:\n\n" +
+        "security-advisory/\n\n";
+    const steps = "Using ZeroLogon:\n\n" +
         "Step 1: Enter a domain controller name.\n" +
         "       Eg: TEST-AD\n\n" +
         "Step 2: Enter a target IP address.\n" +
@@ -51,8 +51,7 @@ const ZeroLogon = () => {
         "Step 4: Enter any relevant hashes.\n" +
         "       Eg: Administrator:500:CEEB0FA9F240C200417EAF40CFAC29C3:D280553F0103F2E643406517296E7582:::\n\n" +
         "Step 5: Click Exploit to commence ZeroLogon’s operation.\n\n" +
-        "Step 6: View the Output block below to view the results of the attack vector's execution.";
-    const steps = ""; // Steps for using the tool, if applicable.
+        "Step 6: View the Output block below to view the results of the attack vector's execution."; // Steps for using the tool, if applicable.
     const sourceLink =
         "https://www.infosecinstitute.com/resources/vulnerabilities/zerologon-cve-2020-1472-technical-overview-and-walkthrough"; // Link to the source code or relevant documentation.
     const tutorial = "https://docs.google.com/document/d/1D_qHImf9zkRiSnFdBnAuMuiIKotLGst9_y0PR5ozrCs/edit?usp=sharing"; // Link to the official tutorial/documentation.
