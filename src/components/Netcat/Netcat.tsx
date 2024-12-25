@@ -8,6 +8,7 @@ import { LoadingOverlayAndCancelButtonPkexec } from "../OverlayAndCancelButton/O
 import InstallationModal from "../InstallationModal/InstallationModal";
 import { RenderComponent } from "../UserGuide/UserGuide";
 import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
+import { FilePicker } from "../FileHandler/FilePicker";
 
 /**
  * Represents the form values for the Netcat component.
@@ -21,6 +22,16 @@ interface FormValuesType {
     websiteUrl: string;
     filePath: string;
 }
+
+//Deals with the generatedfilepath unique identifier that is added at the end of a file
+const cleanFileName = (filePath: string): string => {
+    // Split the file name by the underscore (_) and keep the first part (before the timestamp/ID)
+    const parts = filePath.split("_");
+
+    // Keep only the base file name (before the timestamp and unique identifier)
+    const baseFileName = parts[0];
+    return baseFileName;
+};
 
 //Netcat Options Configuration
 const netcatOptions = ["Listen", "Connect", "Port Scan", "Send File", "Receive File", "Website Port Scan"];
@@ -42,6 +53,7 @@ const NetcatTool = () => {
     const [checkedVerboseMode, setCheckedVerboseMode] = useState(false); // State variable to indicate whether the verbose mode is enabled.
     const [loadingModal, setLoadingModal] = useState(true); // State variable to indicate loading state of the modal.
     const [opened, setOpened] = useState(!isCommandAvailable); // State variable that indicates if the modal is opened.
+    const [fileNames, setFileNames] = useState<string[]>([]); // State variable to store the file names.
     // Component Constants.
     const title = "Netcat"; // Title of the component.
     const description =
@@ -197,7 +209,6 @@ const NetcatTool = () => {
 
                 args = [`-z${verboseFlag}n`];
                 args.push(`${values.ipAddress}`);
-
                 if (values.portNumber.includes("-")) {
                     //checks for port range specifed by the inclusion of "-"
                     const [portStart, portEnd] = values.portNumber.split("-").map(Number); //Splits range by "-", assigns two consts with the split port numbers
@@ -227,15 +238,25 @@ const NetcatTool = () => {
 
             case "Send File": //Sends file from attacker to victim, syntax: nc -v -w <timeout seconds> <IP address> <port number> < <file path>
                 //File to send can be located anywhere, as long as file path is correctly specified
+
+                const baseFilePath = "/home/kali";
+                const fileToSend = fileNames[0];
+                const cleanName = cleanFileName(fileToSend);
+
+                //Concatenate the base file path with the cleaned file name
+                const dataUploadPath = `${baseFilePath}/${cleanName}`;
+
+                //Output the final clean file path for debugging
+                args.push("-l", dataUploadPath);
+
                 try {
-                    let command = `nc${verboseFlagWithSpaceAndDash} -w 10 ${values.ipAddress} ${values.portNumber} < ${values.filePath}`;
-                    let output = await CommandHelper.runCommand("bash", ["-c", command]); //when using '<', command needs to be run via bash shell to recognise that '<' is an input direction
+                    let command = `nc${verboseFlagWithSpaceAndDash} -w 10 ${values.ipAddress} ${values.portNumber} < ${dataUploadPath}`;
+                    let output = await CommandHelper.runCommand("bash", ["-c", command]);
                     setOutput(output);
                 } catch (e: any) {
                     setOutput(e);
                 }
                 break;
-
             case "Receive File": //Receives file from victim to attacker, syntax: nc -lvp <port number> > <file path and file name>
                 //Files can be recieved in any directory
                 try {
@@ -345,7 +366,14 @@ const NetcatTool = () => {
                         <>
                             <TextInput label={"IP address"} required {...form.getInputProps("ipAddress")} />
                             <TextInput label={"Port number"} required {...form.getInputProps("portNumber")} />
-                            <TextInput label={"File path"} required {...form.getInputProps("filePath")} />
+                            <FilePicker
+                                fileNames={fileNames}
+                                setFileNames={setFileNames}
+                                multiple={false}
+                                componentName="Netcat"
+                                labelText="File"
+                                placeholderText="Click to select file(s)"
+                            />
                         </>
                     )}
                     {selectedScanOption === "Receive File" && (

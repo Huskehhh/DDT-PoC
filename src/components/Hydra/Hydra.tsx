@@ -8,6 +8,7 @@ import { LoadingOverlayAndCancelButton } from "../OverlayAndCancelButton/Overlay
 import { RenderComponent } from "../UserGuide/UserGuide";
 import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
 import InstallationModal from "../InstallationModal/InstallationModal";
+import { FilePicker } from "../FileHandler/FilePicker";
 
 /**
  * Represents the form values for the Hydra component.
@@ -24,6 +25,16 @@ interface FormValuesType {
     config: string;
     optionalConfig: string;
 }
+
+//Deals with the generatedfilepath unique identifier that is added at the end of a file
+const cleanFileName = (filePath: string): string => {
+    // Split the file name by the underscore (_) and keep the first part (before the timestamp/ID)
+    const parts = filePath.split("_");
+
+    // Keep only the base file name (before the timestamp and unique identifier)
+    const baseFileName = parts[0];
+    return baseFileName;
+};
 
 /**
  * The Hydra component.
@@ -42,6 +53,7 @@ const Hydra = () => {
     const [opened, setOpened] = useState(!isCommandAvailable); // State variable to indicate loading state of the modal.
     const [allowSave, setAllowSave] = useState(false); // State variable to indicate if saving is allowed
     const [hasSaved, setHasSaved] = useState(false); // State variable to indicate if the output has been saved
+    const [fileNames, setFileNames] = useState<string[]>([]); // State variable to store the file names.
 
     // Component Constants.
     const title = "Hydra"; // Title of the component.
@@ -199,17 +211,25 @@ const Hydra = () => {
         // Disallow saving until the tool's execution is complete
         setAllowSave(false);
 
+        const baseFilePath = "/home/kali";
+
         // Construct arguments for the  Hydra command based on form input
         const args = [];
         if (selectedLoginInput === "Single Login") {
             args.push(`-l`, `${values.loginArgs}`);
         } else if (selectedLoginInput === "File") {
-            args.push(`-L`, `${values.loginArgs}`);
+            const fileToSend = fileNames[0]; // Take the first file from the file picker
+            const cleanName = cleanFileName(fileToSend); // Clean the file name (strip unique identifier)
+            const dataUploadPath = `${baseFilePath}/${cleanName}`;
+            args.push("-l", dataUploadPath);
         }
         if (selectedPasswordInput === "Single Password") {
             args.push(`-p`, `${values.passwordArgs}`);
         } else if (selectedPasswordInput === "File") {
-            args.push(`-P`, `${values.passwordArgs}`);
+            const fileToSend = fileNames[0]; // Take the first file for passwords
+            const cleanName = cleanFileName(fileToSend);
+            const dataUploadPath = `${baseFilePath}/${cleanName}`;
+            args.push("-P", dataUploadPath);
         } else if (selectedPasswordInput === "Character Set") {
             args.push(`-x`, `${values.passwordArgs}`);
         } else if (selectedPasswordInput === "Basic") {
@@ -308,11 +328,13 @@ const Hydra = () => {
                                 />
                             )}
                             {isLoginFile && (
-                                <TextInput
-                                    {...form.getInputProps("loginArgs")}
-                                    label={"File path"}
-                                    placeholder={"eg: /home/kali/Desktop/logins.txt"}
-                                    required
+                                <FilePicker
+                                    fileNames={fileNames}
+                                    setFileNames={setFileNames}
+                                    multiple={false}
+                                    componentName="Hydra"
+                                    labelText="Login File (Can only select files in /home/kali)"
+                                    placeholderText="Click to select file(s)"
                                 />
                             )}
                         </Grid.Col>
@@ -338,19 +360,13 @@ const Hydra = () => {
                                 />
                             )}
                             {isPasswordFile && (
-                                <TextInput
-                                    {...form.getInputProps("passwordArgs")}
-                                    label={"File path"}
-                                    placeholder={"eg: /home/kali/Desktop/pwd.txt"}
-                                    required
-                                />
-                            )}
-                            {isPasswordSet && (
-                                <TextInput
-                                    {...form.getInputProps("passwordArgs")}
-                                    label={"Character Set"}
-                                    placeholder={"eg: 1:5:Aa1"}
-                                    required
+                                <FilePicker
+                                    fileNames={fileNames}
+                                    setFileNames={setFileNames}
+                                    multiple={false}
+                                    componentName="Hydra"
+                                    labelText="Password File (Can only select files in /home/kali)"
+                                    placeholderText="Click to select file(s)"
                                 />
                             )}
                             {isPasswordBasic && (

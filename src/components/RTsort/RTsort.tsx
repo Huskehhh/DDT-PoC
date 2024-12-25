@@ -8,6 +8,7 @@ import { RenderComponent } from "../UserGuide/UserGuide";
 import { LoadingOverlayAndCancelButton } from "../OverlayAndCancelButton/OverlayAndCancelButton";
 import InstallationModal from "../InstallationModal/InstallationModal";
 import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
+import { FilePicker } from "../FileHandler/FilePicker";
 
 /**
  * Represents the form values for the RTsort component.
@@ -15,6 +16,16 @@ import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
 interface FormValuesType {
     path: string;
 }
+
+//Deals with the generatedfilepath unique identifier that is added at the end of a file
+const cleanFileName = (filePath: string): string => {
+    // Split the file name by the underscore (_) and keep the first part (before the timestamp/ID)
+    const parts = filePath.split("_");
+
+    // Keep only the base file name (before the timestamp and unique identifier)
+    const baseFileName = parts[0];
+    return baseFileName;
+};
 
 // Function for implementing RTSort as GUI component
 const RTSort = () => {
@@ -27,6 +38,7 @@ const RTSort = () => {
     const [loadingModal, setLoadingModal] = useState(true); // State variable to indicate loading state of the modal.
     const [isCommandAvailable, setIsCommandAvailable] = useState(false); // State variable to check if the command is available.
     const [opened, setOpened] = useState(!isCommandAvailable); // State variable that indicates if the modal is opened.
+    const [fileNames, setFileNames] = useState<string[]>([]); // State variable to store the file names.
 
     // Component Constants.
     const title = "Rainbow Table Sort"; // Title of the component.
@@ -119,6 +131,14 @@ const RTSort = () => {
         setLoading(true);
         // Disallow saving until the tool's execution is complete
         setAllowSave(false);
+
+        const baseFilePath = "/home/kali";
+        const fileToSend = fileNames[0];
+        const cleanName = cleanFileName(fileToSend);
+
+        // Concatenate the base file path with the cleaned file name
+        const dataUploadPath = `${baseFilePath}/${cleanName}`;
+
         // Construct arguments for the RTsort command based on form input
         const args = [values.path];
         const filteredArgs = args.filter((arg) => arg !== ""); // Variable to store non empty string as argument
@@ -178,11 +198,13 @@ const RTSort = () => {
             <form onSubmit={form.onSubmit(onSubmit)}>
                 {LoadingOverlayAndCancelButton(loading, pid)}
                 <Stack>
-                    <TextInput
-                        label={"Path"}
-                        required
-                        placeholder="/home/user/rainbowcrack/tables/ntlm_loweralpha-numeric#1-9_0_1000x1000_0.rt"
-                        {...form.getInputProps("path")}
+                    <FilePicker
+                        fileNames={fileNames}
+                        setFileNames={setFileNames}
+                        multiple={false}
+                        componentName="RTsort"
+                        labelText="Select File (Can only select files in /home/kali)"
+                        placeholderText="Click to select file(s)"
                     />
                     <Button type={"submit"}>Start Sort</Button>
                     {SaveOutputToTextFile_v2(output, allowSave, hasSaved, handleSaveComplete)}

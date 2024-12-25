@@ -9,6 +9,7 @@ import { RenderComponent } from "../UserGuide/UserGuide";
 import InstallationModal from "../InstallationModal/InstallationModal";
 import { checkAllCommandsAvailability } from "../../utils/CommandAvailability";
 import { LoadingOverlayAndCancelButton } from "../OverlayAndCancelButton/OverlayAndCancelButton";
+import { FilePicker } from "../FileHandler/FilePicker";
 
 /**
  * Represents the form values for the JohnTheRipper component.
@@ -21,6 +22,16 @@ interface FormValuesType {
     wordList: string;
     incrementOrder: string;
 }
+
+//Deals with the generatedfilepath unique identifier that is added at the end of a file created by the FilePicker component
+const cleanFileName = (filePath: string): string => {
+    // Split the file name by the underscore (_) and keep the first part (before the timestamp/ID)
+    const parts = filePath.split("_");
+
+    // Keep only the base file name (before the timestamp and unique identifier)
+    const baseFileName = parts[0];
+    return baseFileName;
+};
 
 /**
  * The JohnTheRipper component.
@@ -39,6 +50,7 @@ const JohnTheRipper = () => {
     const [selectedFileTypeOption, setSelectedFileTypeOption] = useState(""); // State variable to store the selected file type.
     const [selectedModeOption, setSelectedModeOption] = useState(""); // State variable to store the selected crack mode.
     const [selectedIncrementOption, setSelectedIncrementOption] = useState(""); // State variable to store the selected increment order.
+    const [fileNames, setFileNames] = useState<string[]>([]); // State variable to store the file names.
 
     // Component constants
     const modeRequiringWordList = ["dictionary"]; // Crack modes that require a wordlist
@@ -170,9 +182,14 @@ const JohnTheRipper = () => {
         // Disallow saving until the tool's execution is complete
         setAllowSave(false);
 
+        const fileToProcess = fileNames[0]; // Assuming only one file is selected.
+        const cleanName = cleanFileName(fileToProcess);
+        const baseFilePath = "/home/kali";
+        const filePathToUse = `${baseFilePath}/${cleanName}`;
+
         // If hash is stored in a text file
         if (values.fileType === "raw") {
-            const args = [values.filePath];
+            const args = [filePathToUse];
             values.hash ? args.push(`--format=${values.hash}`) : undefined;
 
             selectedModeOption === "dictionary"
@@ -200,7 +217,7 @@ const JohnTheRipper = () => {
                 });
         } else {
             // If hash is stored in a zip/rar file
-            const argsExtract = [values.filePath];
+            const argsExtract = [filePathToUse];
             const argsCrack = [`/tmp/hash.txt`];
 
             // Extract password hash from zip/rar files
@@ -282,7 +299,14 @@ const JohnTheRipper = () => {
             <form onSubmit={form.onSubmit((values) => onSubmit({ ...values, fileType: selectedFileTypeOption }))}>
                 {LoadingOverlayAndCancelButton(loading, pid)}
                 <Stack>
-                    <TextInput label={"Filepath"} required {...form.getInputProps("filePath")} />
+                    <FilePicker
+                        fileNames={fileNames}
+                        setFileNames={setFileNames}
+                        multiple={false}
+                        componentName="JohnTheRipper"
+                        labelText="File (Can only select files in /home/kali)"
+                        placeholderText="Click to select file(s)"
+                    />
                     <TextInput label={"Hash Type (if known)"} {...form.getInputProps("hash")} />
                     <NativeSelect
                         value={selectedModeOption}
