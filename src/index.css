@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
+    "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
@@ -9,47 +9,51 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-code {
+  }
+  
+  code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
-}
-
-.medium-text {
+  }
+  
+  .medium-text {
     font-size: 24px;
     font-weight: 600;
-    letter-spacing: -2;
-}
-
-.colour-scheme-toggle {
+    letter-spacing: -2px;
+  }
+  
+  .colour-scheme-toggle {
     float: right;
     margin: 5px;
-}
-
-.large-text {
+  }
+  
+  .large-text {
     font-size: 30px;
     font-weight: 900;
-    letter-spacing: -2;
-}
-
-#logo-container {
+    letter-spacing: -2px;
+  }
+  
+  #logo-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 50%;
-    height: auto;
-    transform: translate(12%, 18%); /* Move the logo 12% to the right and 5% down */
-}
-
-#logo-container img {
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    position: absolute; /* Remove from normal document flow */
+    top: 0;
+    left: 0;
+  }
+  
+  #logo-container img {
     width: 75%;
+    max-width: 500px; /* Optional: prevents image from becoming too large */
     height: auto;
     margin-bottom: 10px;
-}
-#logo-container a {
+  }
+  
+  #logo-container a {
     pointer-events: none;
-}
-
-#logo-container img {
+  }
+  
+  #logo-container img {
     pointer-events: none;
-}
+  }
